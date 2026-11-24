@@ -56,13 +56,15 @@ writeFileSync(dst, excuse, "utf8");
 
 // Read it back and verify the file holds exactly the excuse, byte
 // for byte, so a partial or corrupted write can never reach the
-// judge — and that its byte length matches the excuse, so no stray
-// newline or encoding surprise can slip past the character gate.
+// judge — and that its byte length matches the excuse's own byte
+// length (the excuse holds an em dash, three bytes in UTF-8, so its
+// byte length is 138 while its character length is 136 — comparing
+// bytes against characters would wrongly reject it).
 const written = readFileSync(dst, "utf8");
 if (written !== excuse) {
   throw new Error("entry.txt does not hold exactly the entry excuse");
 }
-if (Buffer.byteLength(written, "utf8") !== excuse.length) {
+if (Buffer.byteLength(written, "utf8") !== Buffer.byteLength(excuse, "utf8")) {
   throw new Error("entry.txt byte length does not match the entry excuse");
 }
 console.log(excuse);
